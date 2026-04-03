@@ -3,8 +3,8 @@ from PyQt6.QtGui import QPixmap
 from PIL import Image
 from src.cbr_extractor import get_cover_path, cleanup
 
-THUMB_W = 88
-THUMB_H = 110
+THUMB_W = 160
+THUMB_H = 210
 
 
 class ThumbnailLoader(QThread):

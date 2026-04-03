@@ -1,9 +1,15 @@
 from PyQt6.QtWidgets import QApplication
 
 DARK = """
+* {
+    font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+}
 QMainWindow, QWidget {
     background-color: #1a1a1a;
     color: #cccccc;
+}
+QLabel#reader_canvas {
+    background-color: #111111;
 }
 QToolBar {
     background-color: #2a2a2a;
@@ -55,9 +61,15 @@ QProgressBar::chunk {
 """
 
 LIGHT = """
+* {
+    font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+}
 QMainWindow, QWidget {
     background-color: #f0f0f0;
     color: #222222;
+}
+QLabel#reader_canvas {
+    background-color: #d0d0d0;
 }
 QToolBar {
     background-color: #e0e0e0;

@@ -13,24 +13,25 @@ class ThumbnailWidget(QWidget):
         super().__init__(parent)
         self.cbr_path = cbr_path
         self.main_window = main_window
-        self.setFixedSize(100, 140)
+        self.setFixedSize(180, 260)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(4, 4, 4, 4)
-        layout.setSpacing(4)
+        layout.setContentsMargins(6, 6, 6, 6)
+        layout.setSpacing(6)
 
         self.image_label = QLabel()
-        self.image_label.setFixedSize(88, 110)
+        self.image_label.setFixedSize(168, 210)
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setStyleSheet("background-color: #2a2a2a; border-radius: 2px;")
+        self.image_label.setStyleSheet("background-color: #2a2a2a; border-radius: 4px;")
 
         name = os.path.basename(cbr_path)
-        if len(name) > 14:
-            name = name[:12] + "…"
+        if len(name) > 22:
+            name = name[:20] + "…"
         self.name_label = QLabel(name)
         self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.name_label.setStyleSheet("font-size: 9px;")
+        self.name_label.setWordWrap(True)
+        self.name_label.setStyleSheet("font-size: 11px; font-weight: 500;")
 
         layout.addWidget(self.image_label)
         layout.addWidget(self.name_label)
