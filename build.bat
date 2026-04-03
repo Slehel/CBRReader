@@ -36,10 +36,7 @@ pyinstaller ^
     --windowed ^
     --icon=icon.ico ^
     --name=CBRReader ^
-    --hidden-import=PyQt6.sip ^
-    --hidden-import=PyQt6.QtCore ^
-    --hidden-import=PyQt6.QtGui ^
-    --hidden-import=PyQt6.QtWidgets ^
+    --collect-all PyQt6 ^
     --hidden-import=rarfile ^
     --noconfirm ^
     main.py
