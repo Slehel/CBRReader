@@ -1,8 +1,8 @@
 # CBR Reader — Implementation Progress
 
 **Last updated:** 2026-04-03  
-**Completed:** Tasks 1–3 of 9  
-**Status:** In progress
+**Completed:** Tasks 1–9 of 9  
+**Status:** MVP complete — pending manual smoke test on Windows
 
 ---
 
@@ -76,13 +76,98 @@ Theme system is complete. `MainWindow` will create a `ThemeManager` on startup a
 
 ---
 
-## Up Next
+---
 
-| Task | What it builds |
-|---|---|
-| **Task 4** | `MainWindow` — QStackedWidget that switches between LibraryView and ReaderView |
-| Task 5 | `LibraryView` — folder picker + CBR thumbnail grid |
-| Task 6 | `ThumbnailLoader` — background thread that loads cover images |
-| Task 7 | `ReaderView` — single page display + navigation |
-| Task 8 | Exit cleanup hook wired into app shutdown |
-| Task 9 | Full test run + manual smoke test |
+## Task 4 — MainWindow Shell
+**Commit:** `61eadbc`
+
+### What was built
+- **`src/main_window.py`** — `QMainWindow` with a `QStackedWidget` as central widget:
+  - Index 0 → `LibraryView`
+  - Index 1 → `ReaderView`
+  - `show_library()` — calls `reader_view.cleanup()` then switches to index 0
+  - `show_reader(cbr_path)` — calls `reader_view.load_comic(cbr_path)` then switches to index 1
+  - Creates and applies `ThemeManager` on startup
+- **`src/library_view.py`** — minimal stub `QWidget` (full implementation in Task 5)
+- **`src/reader_view.py`** — stub `QWidget` with `load_comic` / `cleanup` (full implementation in Task 7)
+- **`tests/test_main_window.py`** — 3 tests: initial index, switch to reader, switch back to library
+
+### Result
+The app shell is wired. `main.py` can create a `MainWindow`, show it, and the exit hook (`reader_view.cleanup()`) is already connected. View switching works end-to-end.
+
+---
+
+---
+
+## Task 5 — LibraryView & Task 6 — ThumbnailLoader
+**Commit:** `f27949e`
+
+### What was built
+- **`src/library_view.py`** — full implementation replacing stub:
+  - Toolbar: "Open Folder" button, read-only path display, optional theme toggle
+  - `scan_folder(path)` — returns sorted `.cbr` paths, ignores everything else
+  - `load_folder(path)` — clears grid, scans folder, creates `ThumbnailWidget` per comic, starts one `ThumbnailLoader` thread per comic
+  - `closeEvent` — disconnects signals and joins all threads before GC (prevents SIGABRT in Qt)
+- **`src/thumbnail_loader.py`** — `QThread` that extracts cover via `get_cover_path`, resizes with Pillow, emits `QPixmap` via signal
+- **`tests/test_library_view.py`** — 3 tests: scan finds CBRs, ignores non-CBR, status label updates
+
+### What was fixed vs plan
+- `get_cover_path` returns a tuple `(cover_path, temp_dir)` — plan's ThumbnailLoader treated it as a string; fixed to unpack correctly
+- Added `closeEvent` with signal disconnect + thread join — without this, Qt raises SIGABRT when GC collects running QThread objects
+
+### Result
+Library view is fully functional. Opening a folder scans for CBRs, populates the grid, and loads thumbnails in the background.
+
+---
+
+## Task 7 — ReaderView
+**Commit:** `f2129da`
+
+### What was built
+- **`src/reader_view.py`** — full implementation replacing stub:
+  - Toolbar: "← Library" back button, Prev/Next buttons, page counter label, theme toggle
+  - `load_comic(cbr_path)` — extracts all pages, sets `total_pages` and `current_page = 0`
+  - `next_page()` / `prev_page()` — clamped navigation, re-renders image
+  - `_show_current_page()` — scales pixmap to fit widget, updates page label and progress bar
+  - `keyPressEvent` — arrow keys and space bar for navigation
+  - `resizeEvent` — re-renders current page when window is resized
+  - `cleanup()` — deletes temp dir and resets state
+- **`tests/test_reader_view.py`** — 6 tests: page count, initial page, next/prev, clamp at both ends
+
+### Result
+Reader is fully functional. Pages display scaled to the window, keyboard navigation works, and temp files are cleaned up on exit.
+
+---
+
+## Task 8 — Exit Cleanup
+**No new commit needed** — already implemented in Task 1 review.
+
+`main.py` already has a `getattr`-guarded `on_exit` hook connected to `app.aboutToQuit` that calls `reader_view.cleanup()`.
+
+---
+
+## Task 9 — Full Test Run
+**22/22 tests passing** — no warnings.
+
+---
+
+## Manual Smoke Test (for user to run on Windows)
+
+```powershell
+python main.py
+```
+
+Checklist:
+1. App opens showing empty library with "No folder selected"
+2. Click "Open Folder" → pick a folder with .cbr files
+3. Cover thumbnails load in the grid (async, one by one)
+4. Status bar shows correct count (e.g. "5 comics found")
+5. Double-click a comic → switches to ReaderView
+6. First page displays, "1 / N" shown in toolbar
+7. Next/Prev buttons and arrow keys navigate pages
+8. "← Library" returns to the grid
+9. Close the app — no temp files left in `%TEMP%`
+
+---
+
+## Status: MVP Complete
