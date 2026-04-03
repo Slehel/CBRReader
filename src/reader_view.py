@@ -62,9 +62,9 @@ class ReaderView(QWidget):
 
         # Page image
         self.image_label = QLabel()
+        self.image_label.setObjectName("reader_canvas")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.image_label.setStyleSheet("background-color: #111111;")
         root_layout.addWidget(self.image_label)
 
         # Progress bar
