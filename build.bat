@@ -18,6 +18,12 @@ pip show pyinstaller >nul 2>&1
 if errorlevel 1 (
     echo   Installing PyInstaller...
     pip install pyinstaller
+    if errorlevel 1 (
+        echo.
+        echo ERROR: Failed to install PyInstaller.
+        pause
+        exit /b 1
+    )
 ) else (
     echo   PyInstaller already installed.
 )
