@@ -27,5 +27,7 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentIndex(0)
 
     def show_reader(self, cbr_path: str):
+        print(f"[MAIN] show_reader called: {cbr_path}")
         self.reader_view.load_comic(cbr_path)
         self.stack.setCurrentIndex(1)
+        print(f"[MAIN] switched to ReaderView (stack index {self.stack.currentIndex()})")

@@ -36,8 +36,11 @@ class ThumbnailWidget(QWidget):
         layout.addWidget(self.name_label)
 
     def mouseDoubleClickEvent(self, event):
+        print(f"[CLICK] ThumbnailWidget double-clicked: {self.cbr_path}, main_window={self.main_window}")
         if self.main_window:
             self.main_window.show_reader(self.cbr_path)
+        else:
+            print(f"[CLICK] main_window is None, cannot open reader")
 
 
 class LibraryView(QWidget):

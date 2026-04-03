@@ -1,13 +1,27 @@
 import os
 import shutil
+import sys
 import tempfile
 import zipfile
 
 import rarfile
 
+# Prefer explicit env var, then auto-detect WinRAR on Windows
 _unrar = os.environ.get("UNRAR_TOOL")
+if not _unrar and sys.platform == "win32":
+    _candidates = [
+        r"C:\Program Files\WinRAR\UnRAR.exe",
+        r"C:\Program Files (x86)\WinRAR\UnRAR.exe",
+    ]
+    for _path in _candidates:
+        if os.path.isfile(_path):
+            _unrar = _path
+            break
 if _unrar:
     rarfile.UNRAR_TOOL = _unrar
+    print(f"[EXTRACTOR] Using unrar tool: {_unrar}")
+else:
+    print("[EXTRACTOR] Warning: no unrar tool found — .cbr (RAR) files will fail")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
 
