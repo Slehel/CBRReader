@@ -5,7 +5,9 @@ import zipfile
 
 import rarfile
 
-rarfile.UNRAR_TOOL = "/mnt/c/Program Files/WinRAR/UnRAR.exe"
+_unrar = os.environ.get("UNRAR_TOOL")
+if _unrar:
+    rarfile.UNRAR_TOOL = _unrar
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
 
@@ -34,21 +36,32 @@ def extract_cbr(cbr_path: str) -> list[str]:
             if _is_image(f):
                 pages.append(os.path.join(root, f))
 
-    return sorted(pages)
+    return sorted(pages, key=lambda p: os.path.basename(p))
 
 
-def get_cover_path(cbr_path: str) -> str | None:
-    """Extract only the first page of a CBR and return its path."""
+def get_cover_path(cbr_path: str) -> tuple[str, str] | None:
+    """Extract only the first page of a CBR.
+
+    Returns (cover_path, temp_dir) tuple, or None if no pages found.
+    Caller is responsible for calling cleanup(temp_dir) when done.
+    """
     pages = extract_cbr(cbr_path)
     if not pages:
         return None
     cover = pages[0]
+    temp_dir = os.path.dirname(cover)
+    # Walk up to find the cbr_ temp root if cover is in a subdirectory
+    while not os.path.basename(temp_dir).startswith("cbr_"):
+        parent = os.path.dirname(temp_dir)
+        if parent == temp_dir:  # reached filesystem root
+            break
+        temp_dir = parent
     for p in pages[1:]:
         try:
             os.remove(p)
         except OSError:
             pass
-    return cover
+    return cover, temp_dir
 
 
 def cleanup(temp_dir: str) -> None:

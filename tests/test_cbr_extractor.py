@@ -1,5 +1,4 @@
 import os
-import tempfile
 import zipfile
 import pytest
 from PIL import Image
@@ -35,9 +34,12 @@ def test_extract_cbr_files_exist_on_disk(tmp_path):
 
 def test_get_cover_path_returns_first_page(tmp_path):
     cbr = make_fake_cbr(str(tmp_path))
-    cover = get_cover_path(str(cbr))
-    assert cover is not None
+    result = get_cover_path(str(cbr))
+    assert result is not None
+    cover, temp_dir = result
     assert os.path.isfile(cover)
+    assert os.path.isdir(temp_dir)
+    cleanup(temp_dir)  # clean up after test
 
 
 def test_cleanup_removes_temp_dir(tmp_path):
