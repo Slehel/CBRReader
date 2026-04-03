@@ -8,7 +8,9 @@ def main():
     window = MainWindow()
 
     def on_exit():
-        window.reader_view.cleanup()
+        rv = getattr(window, "reader_view", None)
+        if rv is not None:
+            rv.cleanup()
 
     app.aboutToQuit.connect(on_exit)
     window.show()
