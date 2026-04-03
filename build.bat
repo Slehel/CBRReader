@@ -14,10 +14,10 @@ echo ============================================
 
 echo.
 echo [1/3] Checking PyInstaller...
-pip show pyinstaller >nul 2>&1
+python -m pip show pyinstaller >nul 2>&1
 if errorlevel 1 (
     echo   Installing PyInstaller...
-    pip install pyinstaller
+    python -m pip install pyinstaller
     if errorlevel 1 (
         echo.
         echo ERROR: Failed to install PyInstaller.
@@ -31,7 +31,7 @@ if errorlevel 1 (
 echo.
 echo [2/3] Building CBRReader.exe (onedir)...
 cd /d "%PROJECT_DIR%"
-pyinstaller ^
+python -m PyInstaller ^
     --onedir ^
     --windowed ^
     --icon=icon.ico ^
