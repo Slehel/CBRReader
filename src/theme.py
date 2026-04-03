@@ -119,10 +119,14 @@ class ThemeManager:
 
     def toggle(self) -> None:
         self._dark = not self._dark
-        QApplication.instance().setStyleSheet(DARK if self._dark else LIGHT)
+        app = QApplication.instance()
+        if app is not None:
+            app.setStyleSheet(DARK if self._dark else LIGHT)
 
     def apply(self) -> None:
-        QApplication.instance().setStyleSheet(DARK if self._dark else LIGHT)
+        app = QApplication.instance()
+        if app is not None:
+            app.setStyleSheet(DARK if self._dark else LIGHT)
 
     def toggle_label(self) -> str:
         return "☀" if self._dark else "☾"
